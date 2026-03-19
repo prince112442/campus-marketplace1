@@ -1,19 +1,168 @@
-var currentUser = null;
+// ================= DEFAULT PRODUCTS (NO TRAILING SPACES!) =================
+// THIS DEFULT PRODUCT ,ALREADY BUILD IN
+var defaultProducts = [
+  {
+    id: 1,
+    sellerId: 999,
+    seller: "Maxi",
+    name: "iPhone 17 Pro - Like New",
+    price: 4500,
+    category: "Phones",
+    location: "Unity Hall",
+    contact: "0241234567",
+    description: "Barely used iPhone 17 Pro, 2bTB. Comes with original box and charger.",
+    image: "image/iphone.jpg",
+    sold: false,
+    views: 0,
+    dateAdded: new Date().toISOString()
+  },
+  {
+    id: 2,
+    sellerId: 999,
+    seller: "Admin",
+    name: "HP Laptop 15.6 inch",
+    price: 2500,
+    category: "Electronics",
+    location: "Brunei Hall",
+    contact: "0249876543",
+    description: "HP Pavilion, Intel i5, 8GB RAM, 256GB SSD. Perfect for students.",
+    image: "image/l.jpg",
+    sold: false,
+    views: 0,
+    dateAdded: new Date().toISOString()
+  },
+  {
+    id: 3,
+    sellerId: 999,
+    seller: "kwame",
+    name: "Textbook ",
+    price: 150,
+    category: "Books",
+    location: "Ayeduase",
+    contact: "0245551234",
+    description: "textbook, 4th edition. Great condition.",
+    image: "image/love.jpg",
+    sold: false,
+    views: 0,
+    dateAdded: new Date().toISOString()
+  },
+  {
+    id: 4,
+    sellerId: 999,
+    seller: "carey",
+    name: "Gaming Chair - Ergonomic",
+    price: 800,
+    category: "Hostel Items",
+    location: "Kotei Hall",
+    contact: "0243334455",
+    description: "Comfortable gaming/office chair. Adjustable height and armrests.",
+    image: "image/gaming chair.jpg",
+    sold: false,
+    views: 0,
+    dateAdded: new Date().toISOString()
+  },
+  {
+    id: 5,
+    sellerId: 999,
+    seller: "bill",
+    name: "Nike Sneakers - Size 42",
+    price: 350,
+    category: "Fashion",
+    location: "Off Campus",
+    contact: "0247778899",
+    description: "Brand new Nike Air Max, never worn. Size 42.",
+    image: "image/yh.jpg",
+    sold: false,
+    views: 0,
+    dateAdded: new Date().toISOString()
+  },
+  {
+    id: 6,
+    sellerId: 999,
+    seller: "Admin",
+    name: "Samsung Galaxy S21",
+    price: 3200,
+    category: "Phones",
+    location: "Kentinkrono",
+    contact: "0241112233",
+    description: "Samsung S21 5G, 128GB. Excellent condition with screen protector.",
+    image: "image/Samsung S.jpg",
+    sold: false,
+    views: 0,
+    dateAdded: new Date().toISOString()
+  }
+];
 
-// ===== STORAGE HELPERS =====
+// ================= CURRENT USER =================
+var currentUser = null;
+try {
+  var userStr = localStorage.getItem('currentUser');
+  if (userStr) {
+    currentUser = JSON.parse(userStr);
+  }
+} catch (e) {
+  console.error('User data error');
+  localStorage.removeItem('currentUser');
+}
+
+// ================= USER STORAGE =================
 function getUsers() {
   var data = localStorage.getItem('users');
   return data ? JSON.parse(data) : [];
 }
-function saveUsers(list) { localStorage.setItem('users', JSON.stringify(list)); }
+function saveUsers(list) {
+  localStorage.setItem('users', JSON.stringify(list));
+}
 
+// ================= PRODUCT STORAGE =================
 function getProducts() {
   var data = localStorage.getItem('products');
-  return data ? JSON.parse(data) : [];
+  if (!data || data.trim() === '' || data === '[]') {
+    localStorage.setItem('products', JSON.stringify(defaultProducts));
+    return defaultProducts.slice();
+  }
+  try {
+    var parsed = JSON.parse(data);
+    if (!parsed || parsed.length === 0) {
+      localStorage.setItem('products', JSON.stringify(defaultProducts));
+      return defaultProducts.slice();
+    }
+    return parsed;
+  } catch (e) {
+    console.error('Products parse error:', e);
+    localStorage.setItem('products', JSON.stringify(defaultProducts));
+    return defaultProducts.slice();
+  }
 }
-function saveProducts(list) { localStorage.setItem('products', JSON.stringify(list)); }
+function saveProducts(list) {
+  localStorage.setItem('products', JSON.stringify(list));
+}
 
-// ===== AUTH: LOGIN =====
+// ================= INIT PRODUCTS =================
+(function initProducts() {
+  try {
+    var existing = localStorage.getItem('products');
+    if (!existing || existing.trim() === '' || existing === '[]') {
+      localStorage.setItem('products', JSON.stringify(defaultProducts));
+      console.log('✓ Default products initialized');
+    }
+  } catch (e) {
+    localStorage.setItem('products', JSON.stringify(defaultProducts));
+  }
+})();
+
+// ================= AUTH =================
+// 
+function signup(name, email, password) {
+  var users = getUsers();
+  for (var i = 0; i < users.length; i++) {
+    if (users[i].email === email) return false;
+  }
+  users.push({ id: Date.now(), name: name, email: email, password: password });
+  saveUsers(users);
+  return true;
+}
+
 function login(email, password) {
   var users = getUsers();
   for (var i = 0; i < users.length; i++) {
@@ -26,30 +175,21 @@ function login(email, password) {
   return false;
 }
 
-// ===== AUTH: SIGNUP =====
-function signup(name, email, password) {
-  var users = getUsers();
-  for (var i = 0; i < users.length; i++) {
-    if (users[i].email === email) return false;
-  }
-  users.push({ id: Date.now(), name: name.trim(), email: email.trim(), password: password });
-  saveUsers(users);
-  return true;
+function logout() {
+  localStorage.removeItem('currentUser');
+  currentUser = null;
+  window.location.href = "index.html";
 }
 
-// ===== AUTH: CHECK SESSION =====
 function checkAuth() {
-  var userStr = localStorage.getItem('currentUser');
-  if (!userStr) {
+  if (!currentUser) {
     var page = window.location.pathname.split('/').pop();
     if (page === 'dashboard.html' || page === 'marketplace.html' || page === 'add-product.html') {
-      window.location.href = 'index.html';
+      window.location.href = "index.html";
     }
-    return null;
+    return false;
   }
-  currentUser = JSON.parse(userStr);
-  updateUserNameUI();
-  return currentUser;
+  return true;
 }
 
 function updateUserNameUI() {
@@ -62,24 +202,18 @@ function updateUserNameUI() {
   if (el3) el3.textContent = currentUser.name;
 }
 
-// ===== AUTH: LOGOUT =====
-function logout() {
-  localStorage.removeItem('currentUser');
-  currentUser = null;
-  window.location.href = 'index.html';
-}
-
-// ===== ADD PRODUCT =====
+// ================= ADD PRODUCT =================
+// this is where the user can upload the product 
 function addProduct(event) {
   if (event) event.preventDefault();
   if (!checkAuth()) return;
   
-  var name = document.getElementById('productName') ? document.getElementById('productName').value.trim() : '';
-  var price = parseFloat(document.getElementById('productPrice') ? document.getElementById('productPrice').value : 0);
-  var category = document.getElementById('productCategory') ? document.getElementById('productCategory').value : '';
-  var location = document.getElementById('productLocation') ? document.getElementById('productLocation').value : '';
-  var contact = document.getElementById('productContact') ? document.getElementById('productContact').value.trim() : '';
-  var description = document.getElementById('productDescription') ? document.getElementById('productDescription').value.trim() : 'No description';
+  var name = document.getElementById('productName')?.value.trim();
+  var price = parseFloat(document.getElementById('productPrice')?.value || 0);
+  var category = document.getElementById('productCategory')?.value;
+  var location = document.getElementById('productLocation')?.value;
+  var contact = document.getElementById('productContact')?.value.trim();
+  var description = document.getElementById('productDescription')?.value.trim() || 'No description';
   var imageInput = document.getElementById('productImage');
   
   if (!name || !price || !category || !location || !contact) {
@@ -88,8 +222,13 @@ function addProduct(event) {
   }
   
   var saveIt = function(imgData) {
+    var all = getProducts();
+    var maxId = 6;
+    for (var i = 0; i < all.length; i++) {
+      if (all[i].id > maxId) maxId = all[i].id;
+    }
     var product = {
-      id: Date.now(),
+      id: maxId + 1,
       sellerId: currentUser.id,
       seller: currentUser.name,
       name: name,
@@ -103,10 +242,9 @@ function addProduct(event) {
       views: 0,
       dateAdded: new Date().toISOString()
     };
-    var all = getProducts();
     all.unshift(product);
     saveProducts(all);
-    alert('Product posted!');
+    alert('Product posted successfully!');
     window.location.href = 'dashboard.html';
   };
   
@@ -120,7 +258,7 @@ function addProduct(event) {
   }
 }
 
-// ===== DASHBOARD: Load user's products =====
+// ================= DASHBOARD =================
 function loadDashboard() {
   if (!checkAuth()) return;
   var grid = document.getElementById('productGrid');
@@ -178,7 +316,7 @@ function updateStats(list) {
   if (v) v.textContent = views;
 }
 
-// ===== MARKETPLACE: Load all available products =====
+// ================= MARKETPLACE =================
 function loadMarketplace() {
   var grid = document.getElementById('marketGrid');
   if (!grid) return;
@@ -192,33 +330,34 @@ function loadMarketplace() {
 
 function renderMarketplace(list, container) {
   container.innerHTML = '';
+  
   if (list.length === 0) {
     container.innerHTML = '<p class="empty">No items found. Be the first to post!</p>';
     return;
   }
+  
   for (var i = 0; i < list.length; i++) {
     var p = list[i];
+    
+    // Show ONLY: image, name, price, location (hide description, contact, seller details)
     container.innerHTML += 
-      '<div class="product-card" onclick="viewProduct(' + p.id + ')">' +
+      '<div class="product-card" onclick="openProductModal(' + p.id + ')">' +
         '<div class="card-image">' +
           '<img src="' + p.image + '" onerror="this.src=\'https://via.placeholder.com/300\'" alt="' + p.name + '">' +
+          (p.sold ? '<span class="status-badge sold">SOLD</span>' : '') +
         '</div>' +
         '<div class="card-body">' +
           '<span class="card-category">' + p.category + '</span>' +
           '<h4 class="card-title">' + p.name + '</h4>' +
           '<p class="card-price">₵' + p.price.toFixed(2) + '</p>' +
-          '<p class="card-info">' + (p.description ? p.description.substring(0, 80) + (p.description.length > 80 ? '...' : '') : 'No description') + '</p>' +
           '<p class="card-location"><i class="fas fa-map-marker-alt"></i> ' + p.location + '</p>' +
-          '<p class="card-seller">👤 ' + p.seller + '</p>' +
-          '<div class="card-actions">' +
-            '<button class="btn btn-contact" onclick="event.stopPropagation(); contactSeller(\'' + p.seller + '\', \'' + p.contact + '\')">💬 Contact</button>' +
-          '</div>' +
+          '<button class="btn btn-view" onclick="event.stopPropagation(); openProductModal(' + p.id + ')">👁 View Details</button>' +
         '</div>' +
       '</div>';
   }
 }
 
-// ===== PRODUCT ACTIONS =====
+// ================= ACTIONS =================
 function deleteProduct(id) {
   if (!confirm('Delete this product?')) return;
   var all = getProducts();
@@ -270,11 +409,11 @@ function contactSeller(name, contact) {
   }
 }
 
-// ===== DASHBOARD FILTERS =====
+// ================= FILTERS =================
 function filterDashboard() {
-  var search = (document.getElementById('dashSearch') ? document.getElementById('dashSearch').value : '').toLowerCase();
-  var cat = document.getElementById('dashCategory') ? document.getElementById('dashCategory').value : 'All';
-  var loc = document.getElementById('dashLocation') ? document.getElementById('dashLocation').value : 'All';
+  var search = (document.getElementById('dashSearch')?.value || '').toLowerCase();
+  var cat = document.getElementById('dashCategory')?.value || 'All';
+  var loc = document.getElementById('dashLocation')?.value || 'All';
   var all = getProducts();
   var filtered = [];
   for (var i = 0; i < all.length; i++) {
@@ -287,7 +426,6 @@ function filterDashboard() {
   renderDashboard(filtered, document.getElementById('productGrid'));
 }
 
-// ===== MARKETPLACE FILTERS =====
 function searchMarketplace() { applyMarketplaceFilters(); }
 
 function filterMarket(cat, btn) {
@@ -298,12 +436,11 @@ function filterMarket(cat, btn) {
 }
 
 function applyMarketplaceFilters(selCat) {
-  var search = (document.getElementById('marketSearch') ? document.getElementById('marketSearch').value : '').toLowerCase();
-  var loc = document.getElementById('marketLocation') ? document.getElementById('marketLocation').value : 'All';
-  var price = document.getElementById('priceRange') ? document.getElementById('priceRange').value : 'All';
+  var search = (document.getElementById('marketSearch')?.value || '').toLowerCase();
+  var loc = document.getElementById('marketLocation')?.value || 'All';
+  var price = document.getElementById('priceRange')?.value || 'All';
   var activeBtn = document.querySelector('.filter-btn.active');
   var cat = selCat || (activeBtn ? activeBtn.textContent.trim().replace(/^[^\s]+\s/, '') : 'All');
-  
   var all = getProducts();
   var filtered = [];
   for (var i = 0; i < all.length; i++) {
@@ -323,58 +460,133 @@ function applyMarketplaceFilters(selCat) {
   renderMarketplace(filtered, document.getElementById('marketGrid'));
 }
 
-// ===== CHAT FUNCTIONS (ADDED - Missing in your original) =====
+// ================= CHAT =================
 function loadMessages() {
   var list = document.getElementById('chatList');
   if (!list) return;
-  // Simple placeholder - expand with real messaging later
   list.innerHTML = '<p style="padding:15px;color:#7f8c8d;text-align:center">No messages yet</p>';
 }
-
 function openChat() {
   var modal = document.getElementById('chatModal');
-  if (modal) {
-    modal.style.display = 'flex';
-    loadMessages();
-  }
+  if (modal) { modal.style.display = 'flex'; loadMessages(); }
 }
-
 function closeChat() {
   var modal = document.getElementById('chatModal');
   if (modal) modal.style.display = 'none';
 }
-
 function sendMessage() {
   var input = document.getElementById('chatInput');
-  if (input && input.value.trim()) {
-    alert('Message sent! (Chat system coming soon)');
-    input.value = '';
+  if (input && input.value.trim()) { alert('Message sent!'); input.value = ''; }
+}
+window.onclick = function(event) {
+  var modal = document.getElementById('chatModal');
+  if (modal && event.target === modal) closeChat();
+};
+
+// ================= PAGE LOAD =================
+document.addEventListener('DOMContentLoaded', function() {
+  var page = window.location.pathname.split('/').pop();
+  if (page === 'dashboard.html') { checkAuth(); loadDashboard(); loadMessages(); updateUserNameUI(); }
+  else if (page === 'marketplace.html') { checkAuth(); loadMarketplace(); updateUserNameUI(); }
+});
+// ================= PRODUCT MODAL =================
+
+function openProductModal(productId) {
+  var all = getProducts();
+  var product = null;
+  
+  for (var i = 0; i < all.length; i++) {
+    if (all[i].id === productId) {
+      product = all[i];
+      break;
+    }
+  }
+  
+  if (!product) return;
+  
+  // Increment view count
+  product.views = (product.views || 0) + 1;
+  saveProducts(all);
+  
+  // Build modal content (show FULL details here)
+  var modalBody = document.getElementById('productModalBody');
+  modalBody.innerHTML = 
+    '<div class="modal-product">' +
+      '<div class="modal-product-img">' +
+        '<img src="' + product.image + '" onerror="this.src=\'https://via.placeholder.com/300\'" alt="' + product.name + '">' +
+      '</div>' +
+      '<div class="modal-product-info">' +
+        '<h2>' + product.name + '</h2>' +
+        '<p class="price">₵' + product.price.toFixed(2) + '</p>' +
+        '<p class="meta"><i class="fas fa-tag"></i> <strong>Category:</strong> ' + product.category + '</p>' +
+        '<p class="meta"><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> ' + product.location + '</p>' +
+        '<p class="meta"><i class="fas fa-user"></i> <strong>Seller:</strong> ' + product.seller + '</p>' +
+        '<p class="meta"><i class="fas fa-eye"></i> <strong>Views:</strong> ' + (product.views || 0) + '</p>' +
+        '<p class="meta"><i class="fas fa-calendar"></i> <strong>Posted:</strong> ' + new Date(product.dateAdded).toLocaleDateString() + '</p>' +
+        '<div class="description">' +
+          '<strong>Description:</strong><br>' +
+          (product.description || 'No description provided') +
+        '</div>' +
+        '<div class="seller-info">' +
+          '<p><strong>📞 Contact Seller:</strong></p>' +
+          '<p><i class="fas fa-phone"></i> ' + product.contact + '</p>' +
+        '</div>' +
+        '<div class="modal-actions">' +
+          '<button class="btn-contact-large btn-whatsapp" onclick="contactViaWhatsApp(\'' + product.seller + '\', \'' + product.contact + '\')">' +
+            '<i class="fab fa-whatsapp"></i> Chat on WhatsApp' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  
+  // Show modal
+  var modal = document.getElementById('productModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+  }
+}
+
+function closeProductModal() {
+  var modal = document.getElementById('productModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = ''; // Restore scrolling
+  }
+}
+
+function contactViaWhatsApp(sellerName, contact) {
+  var phone = contact.replace(/\D/g, '');
+  var msg = 'Hi ' + sellerName + ', I saw your item "' + document.getElementById('productModalBody').querySelector('h2')?.textContent + '" on Campus Marketplace and I\'m interested!';
+  
+  if (phone.length >= 10) {
+    window.open('https://wa.me/233' + phone + '?text=' + encodeURIComponent(msg), '_blank');
+  } else {
+    alert('Contact ' + sellerName + ' at: ' + contact);
   }
 }
 
 // Close modal when clicking outside
 window.onclick = function(event) {
-  var modal = document.getElementById('chatModal');
+  var modal = document.getElementById('productModal');
+  var chatModal = document.getElementById('chatModal');
+  
   if (modal && event.target === modal) {
+    closeProductModal();
+  }
+  if (chatModal && event.target === chatModal) {
     closeChat();
   }
 };
 
-// ===== AUTO-LOAD ON PAGE =====
-document.addEventListener('DOMContentLoaded', function() {
-  var page = window.location.pathname.split('/').pop();
-  if (page === 'dashboard.html') { 
-    checkAuth(); 
-    loadDashboard(); 
-    loadMessages();
-  }
-  else if (page === 'marketplace.html') { 
-    checkAuth(); 
-    loadMarketplace(); 
+// Close modal with Escape key
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    closeProductModal();
+    closeChat();
   }
 });
-
-// ===== EXPOSE FUNCTIONS TO GLOBAL SCOPE =====
+// ================= EXPOSE =================
 window.login = login;
 window.signup = signup;
 window.logout = logout;

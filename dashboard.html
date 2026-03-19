@@ -7,17 +7,14 @@
   <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
-
-<nav>
-<h2>CAMPUS MARKETPLACE</h2>
-
-<ul>
-<li><a href="marketplace.html">Marketplace</a></li>
-<li><a href="dashboard.html" class="active">Dashboard</a></li>
-<li><a href="#" onclick="logout()">Logout</a></li>
-</ul>
-
-</nav>
+  <nav>
+    <h2>CAMPUS MARKETPLACE</h2>
+    <ul>
+      <li><a href="marketplace.html">Marketplace</a></li>
+      <li><a href="dashboard.html" class="active">Dashboard</a></li>
+      <li><a href="#" onclick="logout()">Logout</a></li>
+    </ul>
+  </nav>
 
   <div class="container">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
@@ -49,12 +46,7 @@
     <div class="product-grid" id="productGrid"></div>
   </div>
 
+  <!-- ONLY load script.js - it handles everything -->
   <script src="js/script.js"></script>
-  <script>
-    window.addEventListener('load', function() {
-      checkAuth();
-      loadDashboard();
-    });
-  </script>
 </body>
 </html>
