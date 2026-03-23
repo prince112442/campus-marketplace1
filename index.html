@@ -4,15 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Campus Marketplace - Authentication</title>
-  <!-- In your <head>, fix this line: -->
+ 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<!-- (removed trailing spaces) -->
+
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <div class="auth-container">
-  <!-- Left Side - Changes based on form -->
+ 
   <div class="auth-left login-bg" id="authLeft">
     <div class="auth-left-content">
       <h1 id="leftTitle">Hello, Welcome 👋</h1>
@@ -21,7 +21,6 @@
     </div>
   </div>
 
-  <!-- Right Side - Login Form -->
   <div class="auth-right" id="loginForm">
     <div class="auth-icon">
       <i class="fas fa-sign-in-alt"></i>
@@ -55,7 +54,7 @@
     </div>
   </div>
 
-  <!-- Right Side - Signup Form -->
+
   <div class="auth-right hidden" id="signupForm">
     <div class="auth-icon">
       <i class="fas fa-user-plus"></i>
@@ -96,7 +95,7 @@
 
 <script src="js/script.js"></script>
 <script>
-// Toggle to Signup with different background image
+// toggle bt images 
 function showSignup() {
   document.getElementById('loginForm').classList.add('hidden');
   document.getElementById('signupForm').classList.remove('hidden');
@@ -128,7 +127,7 @@ function showLogin() {
   document.querySelector('#loginForm .auth-icon i').className = 'fas fa-sign-in-alt';
 }
 
-// Handle Login
+// This  Handle Login
 function handleLogin(event) {
   event.preventDefault();
   

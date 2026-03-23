@@ -94,6 +94,7 @@ var defaultProducts = [
 ];
 
 // ================= CURRENT USER =================
+// the current user storage 
 var currentUser = null;
 try {
   var userStr = localStorage.getItem('currentUser');
