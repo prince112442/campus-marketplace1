@@ -129,6 +129,8 @@ body {
 @media (max-width: 480px) {
     .row {
         grid-template-columns: 1fr;
+        gap: 10px;       
+        padding: 10px;   
     }
 }
 
